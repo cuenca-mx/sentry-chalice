@@ -28,8 +28,8 @@ You can create a route that triggers an error for validate your Sentry installat
 
 ```python
 @app.route('/boom')
-    def boom():
-        raise Exception('boom goes the dynamite!')
+def boom():
+    raise Exception('boom goes the dynamite!')
 
 ```
 
