@@ -16,7 +16,7 @@ from sentry_chalice import ChaliceIntegration
 
 
 sentry_sdk.init(
-    dsn="https://11296178b76d4f0bb423b16ca3efbc01@o202826.ingest.sentry.io/1368035",
+    dsn="https://<key>@<organization>.ingest.sentry.io/<project>",
     integrations=[ChaliceIntegration()]
 )
 
