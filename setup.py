@@ -19,7 +19,7 @@ setup(
     description='exceptions on chalice',
     long_description=long_description,
     long_description_content_type='text/markdown',
-    url='https://github.com/cuenca-mx/sentry_chalice',
+    url='https://github.com/cuenca-mx/sentry-chalice',
     packages=find_packages(),
     include_package_data=True,
     package_data=dict(cuenca_validations=['py.typed']),
