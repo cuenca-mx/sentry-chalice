@@ -1,6 +1,9 @@
+codecov:
+  require_ci_to_pass: yes
+
 coverage:
-  status:
-    patch:
-      default:
-        enabled: no
-        
+  precision: 2
+  range: [95, 100]
+
+comment:
+  layout: 'header, diff, flags, files, footer'
