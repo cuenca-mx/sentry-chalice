@@ -23,6 +23,7 @@ sentry_sdk.init(
 app = Chalice(app_name='appname')
 
 ```
+sentry-chalice now it works just for views: @app.route.
 
 You can create a route that triggers an error for validate your Sentry installation, like this:
 
