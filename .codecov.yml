@@ -1,9 +1,6 @@
 coverage:
-
-    status:
-
-        project:
-
-            default:
-                target: null
-                threshold: 2%
+  status:
+    patch:
+      default:
+        enabled: no
+        
