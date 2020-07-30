@@ -1,9 +1,11 @@
+codecov:
+  require_ci_to_pass: yes
+
 coverage:
+  precision: 2
+  range: [95, 100]
+  status:
+    patch: off
 
-    status:
-
-        project:
-
-            default:
-                target: null
-                threshold: 2%
+comment:
+  layout: 'header, diff, flags, files, footer'
