@@ -1,0 +1,2 @@
+chalice==1.16.0
+sentry-sdk==0.16.2
