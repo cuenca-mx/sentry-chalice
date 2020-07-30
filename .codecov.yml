@@ -5,9 +5,5 @@ coverage:
         project:
 
             default:
+                target: null
                 threshold: 2%
-
-        patch:
-          default:
-            enabled: no
-            if_not_found: success
