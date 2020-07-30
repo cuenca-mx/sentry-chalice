@@ -4,6 +4,8 @@ codecov:
 coverage:
   precision: 2
   range: [95, 100]
+  status:
+    patch: off
 
 comment:
   layout: 'header, diff, flags, files, footer'
