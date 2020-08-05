@@ -8,6 +8,7 @@ from sentry_sdk._types import MYPY
 from sentry_sdk.hub import Hub, _should_send_default_pii
 from sentry_sdk.integrations import Integration
 from sentry_sdk.integrations._wsgi_common import _filter_headers
+from sentry_sdk.integrations.aws_lambda import AwsLambdaIntegration
 from sentry_sdk.utils import (
     AnnotatedValue,
     capture_internal_exceptions,
@@ -79,7 +80,10 @@ class ChaliceIntegration(Integration):
 
     @staticmethod
     def setup_once():
+        # for @app.route()
         Chalice._get_view_function_response = _get_view_function_response
+        # for everything else (like events)
+        AwsLambdaIntegration.setup_once()
 
 
 def _make_request_event_processor(current_request, lambda_context):
