@@ -80,8 +80,10 @@ class ChaliceIntegration(Integration):
 
     @staticmethod
     def setup_once():
-        AwsLambdaIntegration.setup_once()
+        # for @app.route()
         Chalice._get_view_function_response = _get_view_function_response
+        # for everything else (like events)
+        AwsLambdaIntegration.setup_once()
 
 
 def _make_request_event_processor(current_request, lambda_context):
