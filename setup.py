@@ -25,7 +25,7 @@ setup(
     package_data=dict(cuenca_validations=['py.typed']),
     python_requires='>=3.6',
     install_requires=[
-        'chalice>=1.16.0,<1.17.0',
+        'chalice>=1.16.0,<1.18.0',
         'sentry-sdk>=0.16.2,<0.17.0',
         'dataclasses>=0.6;python_version<"3.7"',
     ],
