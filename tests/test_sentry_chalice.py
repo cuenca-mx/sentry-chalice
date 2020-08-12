@@ -1,4 +1,5 @@
 from chalice.test import Client
+from chalice import Rate
 
 
 def test_exception_boom(app) -> None:
@@ -20,8 +21,13 @@ def test_has_request(app, capture_events):
         response = client.http.get('/context')
         assert response.status_code == 500
 
-        (event,) = events
-        assert event["transaction"] == "api_handler"
-        assert "data" not in event["request"]
-        assert event["request"]["url"] == "awslambda:///api_handler"
-        assert event["request"]["headers"] == {}
+    (event,) = events
+    assert event["transaction"] == "api_handler"
+    assert "data" not in event["request"]
+    assert event["request"]["headers"] == {}
+
+
+def test_scheduled_event(app):
+    @app.schedule(Rate(1, unit=Rate.MINUTES))
+    def every_hour(event):
+        raise Exception('only chalice event!')
