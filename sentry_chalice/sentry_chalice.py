@@ -34,6 +34,7 @@ class EventSourceHandler(object):
                 event_obj = self.event_class(event, context)
                 return self.func(event_obj)
             except Exception:
+                scope.clear_breadcrumbs()
                 exc_info = sys.exc_info()
                 event, hint = event_from_exception(
                     exc_info,
