@@ -21,7 +21,6 @@ if MYPY:
 
 
 class EventSourceHandler(object):
-
     def __init__(self, func, event_class):
         self.func = func
         self.event_class = event_class
