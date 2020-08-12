@@ -124,9 +124,10 @@ def _make_request_event_processor(current_request, lambda_context):
 
         request_info["headers"] = _filter_headers(current_request.headers)
 
-        request_info["data"] = AnnotatedValue(
-            "", {"rem": [["!raw", "x", 0, 0]]}
-        )
+        if current_request._body is None:
+            request_info["data"] = AnnotatedValue(
+                "", {"rem": [["!raw", "x", 0, 0]]}
+            )
 
         if _should_send_default_pii():
             user_info = event.setdefault("user", {})
