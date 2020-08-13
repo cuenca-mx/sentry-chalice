@@ -23,7 +23,6 @@ if MYPY:
 
 
 class EventSourceHandler(ChaliceEventSourceHandler):
-
     def __call__(self, event, context):
         hub = Hub.current
         client = hub.client
@@ -34,9 +33,7 @@ class EventSourceHandler(ChaliceEventSourceHandler):
                 return self.func(event_obj)
             except Exception:
                 scope.add_event_processor(
-                    _make_request_event_processor(
-                        event, context
-                    )
+                    _make_request_event_processor(event, context)
                 )
                 exc_info = sys.exc_info()
                 event, hint = event_from_exception(
@@ -126,7 +123,8 @@ def _make_request_event_processor(current_request, lambda_context):
             "function_name": lambda_context.function_name,
             "function_version": lambda_context.function_version,
             "Lambda ARN": lambda_context.invoked_function_arn,
-            "aws_request_id": lambda_context.aws_request_id}
+            "aws_request_id": lambda_context.aws_request_id,
+        }
 
         extra["cloudwatch info"] = {
             "url": _get_cloudwatch_logs_url(lambda_context, start_time),
