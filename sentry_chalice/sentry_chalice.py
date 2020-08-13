@@ -4,10 +4,12 @@ from datetime import datetime
 
 import chalice
 from chalice import Chalice, ChaliceViewError, Response
+from chalice.app import EventSourceHandler as ChaliceEventSourceHandler
 from sentry_sdk._types import MYPY
 from sentry_sdk.hub import Hub, _should_send_default_pii
 from sentry_sdk.integrations import Integration
 from sentry_sdk.integrations._wsgi_common import _filter_headers
+from sentry_sdk.integrations.aws_lambda import _get_cloudwatch_logs_url
 from sentry_sdk.utils import (
     AnnotatedValue,
     capture_internal_exceptions,
@@ -20,10 +22,7 @@ if MYPY:
     from sentry_sdk._types import Event, EventProcessor, Hint
 
 
-class EventSourceHandler(object):
-    def __init__(self, func, event_class):
-        self.func = func
-        self.event_class = event_class
+class EventSourceHandler(ChaliceEventSourceHandler):
 
     def __call__(self, event, context):
         hub = Hub.current
@@ -34,7 +33,11 @@ class EventSourceHandler(object):
                 event_obj = self.event_class(event, context)
                 return self.func(event_obj)
             except Exception:
-                scope.clear_breadcrumbs()
+                scope.add_event_processor(
+                    _make_request_event_processor(
+                        event, context
+                    )
+                )
                 exc_info = sys.exc_info()
                 event, hint = event_from_exception(
                     exc_info,
@@ -116,6 +119,21 @@ def _make_request_event_processor(current_request, lambda_context):
 
     def event_processor(event, hint, start_time=start_time):
         # type: (Event, Hint, datetime) -> Optional[Event]
+
+        extra = event.setdefault("extra", {})
+
+        extra["Chalice-lambda"] = {
+            "function_name": lambda_context.function_name,
+            "function_version": lambda_context.function_version,
+            "Lambda ARN": lambda_context.invoked_function_arn,
+            "aws_request_id": lambda_context.aws_request_id}
+
+        extra["cloudwatch info"] = {
+            "url": _get_cloudwatch_logs_url(lambda_context, start_time),
+            "log_group": lambda_context.log_group_name,
+            "log_stream": lambda_context.log_stream_name,
+        }
+
         request_info = event.get("request", {})
 
         request_info["method"] = current_request.context["httpMethod"]
