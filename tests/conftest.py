@@ -1,6 +1,6 @@
 import pytest
 import sentry_sdk
-from chalice import Chalice
+from chalice import BadRequestError, Chalice
 
 from sentry_chalice import ChaliceIntegration
 
@@ -19,6 +19,10 @@ def app():
     @app.route('/context')
     def has_request():
         raise Exception('boom goes the dynamite!')
+
+    @app.route('/badrequest')
+    def badrequest():
+        raise BadRequestError('bad-request')
 
     return app
 

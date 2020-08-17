@@ -5,6 +5,7 @@ from datetime import datetime
 import chalice
 from chalice import Chalice, ChaliceViewError, Response
 from chalice.app import EventSourceHandler as ChaliceEventSourceHandler
+from sentry_sdk._compat import reraise
 from sentry_sdk._types import MYPY
 from sentry_sdk.hub import Hub, _should_send_default_pii
 from sentry_sdk.integrations import Integration
@@ -43,6 +44,7 @@ class EventSourceHandler(ChaliceEventSourceHandler):
                 )
                 hub.capture_event(event, hint=hint)
                 hub.flush()
+                reraise(*exc_info)
 
 
 def _get_view_function_response(app, view_function, function_args):
