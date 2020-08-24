@@ -1,5 +1,24 @@
 import pytest
+from chalice.local import LambdaContext
 from chalice.test import Client
+
+
+class FakeTimeSource(object):
+    # taken from chalice tests
+    def __init__(self, times):
+        """Create a fake source of second-precision time.
+        :type time: List
+        :param time: List of times that the time source should return in the
+            order it should return them. These should be in seconds.
+        """
+        self._times = times
+
+    def time(self):
+        """Get the next time.
+        This is for mimicing the Clock interface used in local.
+        """
+        time = self._times.pop(0)
+        return time
 
 
 def test_exception_boom(app) -> None:
@@ -22,15 +41,22 @@ def test_has_request(app, capture_events):
         assert response.status_code == 500
 
     (event,) = events
-    assert event["transaction"] == "api_handler"
-    assert "data" not in event["request"]
-    assert event["request"]["headers"] == {}
+
+    assert event["level"] == "error"
+    (exception,) = event["exception"]["values"]
+    assert exception["type"] == "Exception"
 
 
-def test_scheduled_event(app):
+def test_scheduled_event(app, lambda_context_args):
     @app.schedule('rate(1 minutes)')
     def every_hour(event):
         raise Exception('only chalice event!')
+
+    time_source = FakeTimeSource([0, 5])
+    context = LambdaContext(
+        *lambda_context_args, max_runtime_ms=10000, time_source=time_source
+    )
+    # time_remaining = context.get_remaining_time_in_millis()
 
     lambda_event = {
         "version": "0",
@@ -46,7 +72,7 @@ def test_scheduled_event(app):
         ],
     }
     with pytest.raises(Exception) as exc_info:
-        every_hour(lambda_event, context=None)
+        every_hour(lambda_event, context=context)
     assert str(exc_info.value) == 'only chalice event!'
 
 

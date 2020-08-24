@@ -54,3 +54,11 @@ def capture_events(monkeypatch):
         return events
 
     return inner
+
+
+@pytest.fixture
+def lambda_context_args():
+    # LambdaContext has several positional args before the ones that we
+    # care about for the timing tests, this gives reasonable defaults for
+    # those arguments. Taken from chalice tests
+    return ['lambda_name', 256]
