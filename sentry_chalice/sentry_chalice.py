@@ -1,5 +1,6 @@
 import sys
 import traceback
+from functools import wraps
 
 import chalice
 from chalice import Chalice, ChaliceViewError, Response
@@ -38,33 +39,21 @@ class EventSourceHandler(ChaliceEventSourceHandler):
                 reraise(*exc_info)
 
 
-def _get_view_function_response(app, view_function, function_args):
-    hub = Hub.current
-    client = hub.client
+old_get_view_function_response = Chalice._get_view_function_response
 
-    with hub.push_scope() as scope:
+
+def _get_view_function_response(app, view_function, function_args):
+    @wraps(view_function)
+    def wrapped_view_function(**function_args):
         try:
-            response = view_function(**function_args)
-            if not isinstance(response, Response):
-                response = Response(body=response)
-            app._validate_response(response)
-        except ChaliceViewError as e:
-            # Any chalice view error should propagate.  These
-            # get mapped to various HTTP status codes in API Gateway.
-            response = Response(
-                body={'Code': e.__class__.__name__, 'Message': str(e)},
-                status_code=e.STATUS_CODE,
-            )
-            hub.flush()
+            return view_function(**function_args)
         except Exception:
             with capture_internal_exceptions():
-                configured_time = (
-                    app.lambda_context.get_remaining_time_in_millis()
-                )
+                configured_time = app.lambda_context.get_remaining_time_in_millis()
                 scope.transaction = app.lambda_context.function_name
                 scope.add_event_processor(
                     _make_request_event_processor(
-                        app.current_request,
+                        app.current_request.to_dict(),
                         app.lambda_context,
                         configured_time,
                     )
@@ -77,24 +66,7 @@ def _get_view_function_response(app, view_function, function_args):
             )
             hub.capture_event(event, hint=hint)
             hub.flush()
-            headers = {}
-            app.log.error(
-                "Caught exception for %s", view_function, exc_info=True
-            )
-            if app.debug:
-                # If the user has turned on debug mode,
-                # we'll let the original exception propagate so
-                # they get more information about what went wrong.
-                stack_trace = ''.join(traceback.format_exc())
-                body = stack_trace
-                headers['Content-Type'] = 'text/plain'
-            else:
-                body = {
-                    'Code': 'InternalServerError',
-                    'Message': 'An internal server error occurred.',
-                }
-            response = Response(body=body, headers=headers, status_code=500)
-    return response
+    return old_get_view_function_response(app, wrapped_view_function, function_args)
 
 
 class ChaliceIntegration(Integration):
