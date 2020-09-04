@@ -56,7 +56,6 @@ def test_scheduled_event(app, lambda_context_args):
     context = LambdaContext(
         *lambda_context_args, max_runtime_ms=10000, time_source=time_source
     )
-    # time_remaining = context.get_remaining_time_in_millis()
 
     lambda_event = {
         "version": "0",
