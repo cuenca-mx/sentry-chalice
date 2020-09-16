@@ -1,2 +1,2 @@
 chalice==1.19.0
-sentry-sdk==0.17.0
+sentry-sdk==0.17.6
