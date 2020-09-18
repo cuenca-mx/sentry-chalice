@@ -1,3 +1,5 @@
+## [DEPRECATED] This repo is no longer maintained. The code has been merged directly in [`sentry_sdk`](https://github.com/getsentry/sentry-python/)
+
 # Sentry-chalice
 
 [![test](https://github.com/cuenca-mx/sentry-chalice/workflows/test/badge.svg)](https://github.com/cuenca-mx/sentry-chalice/actions?query=workflow%3Atest)
